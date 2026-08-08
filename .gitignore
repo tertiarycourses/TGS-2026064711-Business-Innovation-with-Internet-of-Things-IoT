@@ -1,0 +1,46 @@
+# WSQ assessment materials (confidential — never pushed)
+# Question papers AND answer keys are trainer/assessor material and live on
+# Google Drive only. They must never reach GitHub.
+/assessment/
+/assessment\ /
+
+# The assessment BUILDER carries this course's live questions and model answers
+# inline, so publishing it leaks the paper just as the DOCX would. The generic
+# template (build_wsq_assessment.py) and the SKILL.md stay, so the toolchain is
+# still reproducible for a new course.
+.claude/skills/wsq-assessment/build_assessment.py
+build/build_assessment.py
+
+# Source material the project was derived from — not ours to republish.
+**/reference/
+
+# Distribution archives (rebuildable — never pushed to GitHub)
+*.zip
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# LMS link block — contains internal Google Drive file links
+LMS-LINKS.md
+
+# macOS / Office junk
+.DS_Store
+~$*
+*.tmp
+
+# Tooling
+.playwright-mcp/
+__pycache__/
+*.pyc
+
+# LMS-TMS service key — a credential. Never commit.
+lms_tms_api_key
+.claude/lms_tms_api_key
+*.key
