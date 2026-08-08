@@ -9,7 +9,6 @@
 # template (build_wsq_assessment.py) and the SKILL.md stay, so the toolchain is
 # still reproducible for a new course.
 .claude/skills/wsq-assessment/build_assessment.py
-build/build_assessment.py
 
 # Source material the project was derived from — not ours to republish.
 **/reference/
@@ -39,8 +38,3 @@ LMS-LINKS.md
 .playwright-mcp/
 __pycache__/
 *.pyc
-
-# LMS-TMS service key — a credential. Never commit.
-lms_tms_api_key
-.claude/lms_tms_api_key
-*.key
