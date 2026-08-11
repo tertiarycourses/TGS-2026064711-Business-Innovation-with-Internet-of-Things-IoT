@@ -37,6 +37,7 @@ import urllib.request
 
 REMOTE = os.environ.get("GDRIVE_REMOTE", "gdrive")
 API = os.environ.get("LMS_TMS_API", "https://lms-tms.tertiaryinfotech.com")
+REPO_FOR_AUTH = "."   # set from --repo in main(), so a course .env can hold the key
 
 # Drive subfolder -> (canonical name, lowercase hint for fuzzy match)
 FOLDERS = {
@@ -164,18 +165,24 @@ def collect_links(root):
     take("practicalPerformanceAssessmentLink", "assessment",
          lambda n: docx(n) and re.search(r"^\s*pp\b|practical performance|\(pp\)", n, re.I),
          "PP question paper .docx")
+    # Some courses assess the knowledge criteria by Oral Questioning instead of a practical
+    # paper. The LMS carries an oralQuestioning method for exactly this.
+    take("oralQuestioningLink", "assessment",
+         lambda n: docx(n) and re.search(r"^\s*oq\b|oral questioning|\(oq\)", n, re.I),
+         "OQ question paper .docx")
 
-    # A course has exactly ONE practical instrument — a Case Study or a PP, never both.
-    # Whichever paper is on Drive IS the instrument; the absence of the other is not "missing",
-    # so drop its complaint. (The one that is absent gets cleared on the LMS — see build_payload.)
-    cs, pp = "caseStudyLink", "practicalPerformanceAssessmentLink"
-    if cs in out and pp in out:
+    # A course has exactly ONE second instrument — a Case Study, a PP, or Oral Questioning,
+    # never more. Whichever paper is on Drive IS the instrument; the absence of the others is
+    # not "missing", so drop their complaints. (The absent ones get cleared — see build_payload.)
+    cs, pp, oq = "caseStudyLink", "practicalPerformanceAssessmentLink", "oralQuestioningLink"
+    present = [f for f in (cs, pp, oq) if f in out]
+    if len(present) > 1:
         raise SystemExit(
-            "BOTH a Case Study and a PP question paper are on Drive — a course has ONE practical "
-            "instrument. Remove the wrong one from the Drive Assessment folder and re-run.")
-    absent = pp if cs in out else (cs if pp in out else None)
-    if absent:
-        missing[:] = [m for m in missing if not m.startswith(FIELD_LABELS[absent])]
+            f"MORE THAN ONE second assessment instrument is on Drive ({', '.join(present)}) — a "
+            "course has one. Remove the wrong paper(s) from the Drive Assessment folder and re-run.")
+    if present:
+        for absent in (f for f in (cs, pp, oq) if f not in out):
+            missing[:] = [m for m in missing if not m.startswith(FIELD_LABELS[absent])]
 
     return out, missing
 
@@ -229,12 +236,94 @@ def course_code_from_courseware(repo):
 
 # ---------------------------------------------------------------------- LMS API
 
+# Machine auth. The LMS API is session-based for humans, but it also accepts a
+# service-principal key (lib/auth/serviceKey.ts in ai-lms-tms) sent as the
+# `x-api-key` header — that is the supported way for a script to call it. Provide
+# the key as LMS_TMS_API_KEY (or EXTERNAL_API_KEY_FOR_CLAWDBOT); a course .env is
+# read too, so a repo can carry its own. Without a key every call 401s.
+
+def _load_env_file(path):
+    out = {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    out[k.strip()] = v.strip().strip('"').strip("'")
+    except OSError:
+        pass
+    return out
+
+
+KEY_NAMES = ("LMS_TMS_API_KEY", "EXTERNAL_API_KEY_FOR_CLAWDBOT")
+
+
+def _key_from_file(path):
+    """A plain-text key file (the whole file is the key)."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            v = f.read().strip()
+        return v or None
+    except OSError:
+        return None
+
+
+def api_key(repo="."):
+    """The service key. Resolution order is the one documented in /tms-push:
+
+      1. shell env            LMS_TMS_API_KEY (or EXTERNAL_API_KEY_FOR_CLAWDBOT)
+      2. project level        ./.claude/lms_tms_api_key, ./.claude/.env, ./.env
+      3. user level           ~/.claude/lms_tms_api_key, ~/.claude/.env
+
+    A key file is a credential: keep it gitignored and never commit it.
+    """
+    for k in KEY_NAMES:
+        if os.environ.get(k):
+            return os.environ[k]
+    for path in (os.path.join(repo, ".claude", "lms_tms_api_key"),
+                 os.path.expanduser("~/.claude/lms_tms_api_key")):
+        v = _key_from_file(path)
+        if v:
+            return v
+    for path in (os.path.join(repo, ".claude", ".env"),
+                 os.path.join(repo, ".env"),
+                 os.path.expanduser("~/.claude/.env")):
+        env = _load_env_file(path)
+        for k in KEY_NAMES:
+            if env.get(k):
+                return env[k]
+    return None
+
+
+def auth_headers(repo="."):
+    key = api_key(repo)
+    return {"x-api-key": key} if key else {}
+
+
+def _no_key_message():
+    return (
+        "\nNo API key was found, so LMS-TMS treated this as an anonymous request.\n"
+        "The API accepts a service key in the `x-api-key` header. Provide it as:\n"
+        "  1. export LMS_TMS_API_KEY=<key>              # shell env\n"
+        "  2. ./.claude/lms_tms_api_key                 # project-level key file\n"
+        "  3. ~/.claude/lms_tms_api_key  (chmod 600)    # user level — every repo can push\n"
+        "The value is EXTERNAL_API_KEY_FOR_CLAWDBOT from the ai-lms-tms deployment.\n"
+        "A key file is a credential: keep it gitignored and never commit it.\n\n"
+        "Alternatively, paste the link block by hand — generate it with:\n"
+        "  python3 <gdrive-push-skill>/gdrive_push.py --repo <repo> --links-only")
+
+
 def get_json(url):
     try:
-        with urllib.request.urlopen(url, timeout=60) as r:
+        req = urllib.request.Request(url, headers=auth_headers(REPO_FOR_AUTH))
+        with urllib.request.urlopen(req, timeout=60) as r:
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
-        raise SystemExit(f"GET {url} -> {e.code}: {e.read()[:300].decode(errors='replace')}")
+        body = e.read()[:300].decode(errors="replace")
+        if e.code in (401, 403):
+            raise SystemExit(f"GET {url} -> {e.code}: {body}" + _no_key_message())
+        raise SystemExit(f"GET {url} -> {e.code}: {body}")
     except urllib.error.URLError as e:
         raise SystemExit(f"GET {url} failed: {e.reason}")
 
@@ -266,15 +355,18 @@ def put_multipart(url, fields):
         body += (f"--{boundary}\r\nContent-Disposition: form-data; name=\"{name}\"\r\n\r\n"
                  ).encode() + value.encode() + b"\r\n"
     body += f"--{boundary}--\r\n".encode()
-    req = urllib.request.Request(
-        url, data=body, method="PUT",
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}",
-                 "Content-Length": str(len(body))})
+    hdrs = {"Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Content-Length": str(len(body))}
+    hdrs.update(auth_headers(REPO_FOR_AUTH))
+    req = urllib.request.Request(url, data=body, method="PUT", headers=hdrs)
     try:
         with urllib.request.urlopen(req, timeout=120) as r:
             return r.status, json.loads(r.read() or "{}")
     except urllib.error.HTTPError as e:
-        raise SystemExit(f"PUT {url} -> {e.code}: {e.read()[:500].decode(errors='replace')}")
+        body_txt = e.read()[:500].decode(errors="replace")
+        if e.code in (401, 403):
+            raise SystemExit(f"PUT {url} -> {e.code}: {body_txt}" + _no_key_message())
+        raise SystemExit(f"PUT {url} -> {e.code}: {body_txt}")
     except urllib.error.URLError as e:
         raise SystemExit(f"PUT {url} failed: {e.reason}")
 
@@ -320,17 +412,21 @@ def build_payload(course, urls):
     if "writtenAssessmentLink" in urls:
         set_method("writtenAssessment", urls["writtenAssessmentLink"][1])
 
-    # ONE practical instrument: set the one we have, and CLEAR the other so a stale link
-    # (e.g. a PP doc left behind on a Case Study course) cannot survive on the LMS.
+    # ONE second instrument: set the one we have, and CLEAR the others so a stale link
+    # (e.g. a PP doc left behind on an Oral Questioning course) cannot survive on the LMS.
     cs_url = urls.get("caseStudyLink", (None, None))[1]
     pp_url = urls.get("practicalPerformanceAssessmentLink", (None, None))[1]
-    if cs_url or pp_url:
+    oq_url = urls.get("oralQuestioningLink", (None, None))[1]
+    if cs_url or pp_url or oq_url:
         set_method("caseStudy", cs_url)
         set_method("practicalExam", pp_url)
+        set_method("oralQuestioning", oq_url)
         payload["practicalPerformanceAssessmentLink"] = pp_url or ""
 
     payload["assessmentMethods"] = methods
-    payload.pop("caseStudyLink", None)   # not a real column — it lives in assessmentMethods
+    # Not real columns — these live only in assessmentMethods.
+    payload.pop("caseStudyLink", None)
+    payload.pop("oralQuestioningLink", None)
     return payload
 
 
@@ -344,6 +440,7 @@ FIELD_LABELS = {
     "writtenAssessmentLink": "Written Assessment (question paper)",
     "caseStudyLink": "Case Study (question paper)",
     "practicalPerformanceAssessmentLink": "Practical Performance (question paper)",
+    "oralQuestioningLink": "Oral Questioning (question paper)",
 }
 
 
@@ -357,6 +454,9 @@ def main():
     ap.add_argument("--allow-missing", action="store_true",
                     help="update only the fields whose file exists on Drive, instead of aborting")
     a = ap.parse_args()
+
+    global REPO_FOR_AUTH
+    REPO_FOR_AUTH = a.repo
 
     # The course code is taken FROM THE COURSEWARE ITSELF (deck cover / LG / LP), not from
     # the folder name — a renamed or copied repo folder must never be able to publish one
@@ -451,10 +551,11 @@ def main():
     ok = True
     print("\nVerification (read back from LMS-TMS, then fetch each link):")
     def stored_value(field):
-        """Read the field back. caseStudy has no flat column — it lives in assessmentMethods,
-        which is also what the course page renders."""
-        if field == "caseStudyLink":
-            return ((after.get("assessmentMethods") or {}).get("caseStudy") or {}).get("link")
+        """Read the field back. caseStudy and oralQuestioning have no flat column — they live
+        in assessmentMethods, which is also what the course page renders."""
+        method_only = {"caseStudyLink": "caseStudy", "oralQuestioningLink": "oralQuestioning"}
+        if field in method_only:
+            return ((after.get("assessmentMethods") or {}).get(method_only[field]) or {}).get("link")
         return after.get(field)
 
     def same_file(a, b):
