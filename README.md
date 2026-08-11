@@ -90,12 +90,14 @@ labs/                          4 IoTFlow labs — one folder each, + index
 assets/                        Diagrams and platform screenshots used by the deck and guide
 .claude/skills/courseware-build/build/
   course_data.py               SINGLE SOURCE OF TRUTH — metadata, outcomes, topics, discussions
-  data_domain3.py              The four hands-on labs (Topic 3)
+  data_domain1.py … 5.py       Slide content, one module per topic (labs live in domain 3)
   build_slides.py              → the deck
   build_lesson_plan.py         → the Lesson Plan
   build_learner_guide.py       → the Learner Guide (DOCX + Markdown)
   build_labs.py                → labs/lab-NN/README.md and the labs index
   build_courseware.sh          Orchestrator: generate → PDF → inject TOC → re-render
+  inject_toc.py, prodoc.py     Word TOC field injection and shared DOCX helpers
+  *.example.py                 Course-agnostic templates for starting a new course
 ```
 
 The lab **instructions** are generated from `data_domain3.py`; the lab **Python scripts**
@@ -116,6 +118,29 @@ python3 .claude/skills/courseware-build/build/build_labs.py      # labs/*.md + i
 
 Requires Python 3 with `python-pptx`, `python-docx` and `Pillow`, plus LibreOffice
 (`soffice`) on the PATH for PDF rendering.
+
+### Publishing to Drive and the LMS
+
+Built artifacts are published to the course's Google Drive folder and then linked from the
+course record on `lms-tms.tertiaryinfotech.com`:
+
+```bash
+python3 .claude/skills/gdrive-push/gdrive_push.py --repo . --dry-run   # preview, then drop --dry-run
+python3 .claude/skills/lms-push/lms_push.py --repo .                   # write the Drive links onto the course
+```
+
+Neither step needs the folder link typed out. The destination resolves in order from an
+explicitly passed link, then the course's **Courseware Link** on LMS-TMS, then
+`COURSEWARE_LINK` in the course `.env` — which every real push writes back, so a later run
+still works when the LMS API is unreachable. The lookup is keyed on the `TGS-` code read
+out of the courseware itself, and a passed link that disagrees with the reference link is
+**refused** unless `--force-folder`, so one course's material cannot land in another
+course's folder. Superseded Drive files are moved to `archive/`; nothing is ever deleted.
+
+The LMS API authenticates machine callers with a service key in the `x-api-key` header,
+read from `LMS_TMS_API_KEY` in the environment, `./.claude/lms_tms_api_key`, or
+`~/.claude/lms_tms_api_key`. That key and the `.env` are credentials — both are git-ignored
+and neither is ever committed.
 
 ### Slide deck conventions
 
