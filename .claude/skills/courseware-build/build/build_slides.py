@@ -45,7 +45,7 @@ def _find_repo(start):
     return os.path.dirname(os.path.dirname(HERE))
 REPO = _find_repo(HERE)
 ASSETS = os.path.join(os.path.dirname(HERE), "assets")   # co-located with the skill
-IMG = os.path.join(REPO, "courseware", "assets")            # course diagrams & screenshots
+IMG = os.path.join(REPO, "assets")            # course diagrams & screenshots
 
 # ---------------- palette (matches reference) ----------------
 BLUE=RGBColor(0x1F,0x6F,0xEB); TEAL=RGBColor(0x10,0xB9,0x81); AMBER=RGBColor(0xF5,0x9E,0x0B)
@@ -379,9 +379,20 @@ def brk(kind,dur,color=AMBER):
     txt(s,0,Inches(4.05),SW,Inches(0.8),[[(dur,22,color,True)]],align=PP_ALIGN.CENTER); PAGE["n"]+=1
 
 
+MISSING_IMAGES=[]
+
 def _img(name):
+    """Resolve an asset, recording any miss.
+
+    A missing file used to degrade silently to a caption-only slide, so a
+    wrong IMG path could strip the artwork from every picture slide and the
+    build would still report success. Misses are collected here and the build
+    fails loudly at the end (see the check after the deck is saved).
+    """
     p=os.path.join(IMG,name)
-    return p if os.path.exists(p) else None
+    if os.path.exists(p): return p
+    MISSING_IMAGES.append(name)
+    return None
 
 def picture_slide(title,image,caption="",kicker=None,accent=BLUE):
     """Full-bleed visual slide: one large diagram/screenshot with a caption.
@@ -843,6 +854,15 @@ tile_grid("Support",[
 big_statement("Thank You!",
  "You can now explore, evaluate and implement business innovation opportunities with IoT.",
  "SEE YOU AT THE NEXT COURSE",color=TEAL)
+
+if MISSING_IMAGES:
+    # Fail the build rather than shipping a deck whose picture slides are blank
+    # white frames — the failure mode that stripped artwork from 21 slides.
+    import sys
+    missing=sorted(set(MISSING_IMAGES))
+    sys.exit(f"ERROR: {len(missing)} asset(s) not found under {IMG}:\n  "
+             + "\n  ".join(missing)
+             + "\nThe deck was NOT saved. Fix the asset path or add the files, then rebuild.")
 
 OUT=os.path.join(REPO,"courseware",f"{C.SHORT_TITLE}-{C.VERSION}.pptx")
 prs.save(OUT)

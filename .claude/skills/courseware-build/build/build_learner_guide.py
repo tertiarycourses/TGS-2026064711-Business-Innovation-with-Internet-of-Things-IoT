@@ -34,6 +34,7 @@ def _find_repo(start):
     return os.path.dirname(os.path.dirname(HERE))
 REPO=_find_repo(HERE); ASSETS=os.path.join(os.path.dirname(HERE),"assets")
 IMG=os.path.join(REPO,"assets")   # course diagrams & screenshots
+MISSING_IMAGES=[]                 # assets referenced but not found (build fails on these)
 
 # ---------------- block DSL (single content stream → MD + DOCX) ----------------
 B=[]
@@ -308,7 +309,11 @@ for kind,*rest in B:
     elif kind=="rule": doc.add_paragraph("")
     elif kind=="image":
         ipath=os.path.join(IMG,rest[0])
-        if os.path.exists(ipath):
+        if not os.path.exists(ipath):
+            # Never skip silently: a wrong IMG path once shipped a guide with
+            # no lab screenshots at all while the build reported success.
+            MISSING_IMAGES.append(rest[0])
+        else:
             from docx.shared import Inches as _In
             doc.add_picture(ipath,width=_In(6.0))
             doc.paragraphs[-1].alignment=WD_ALIGN_PARAGRAPH.CENTER
@@ -321,6 +326,14 @@ for kind,*rest in B:
 
 prodoc.add_page_numbers(doc)
 prodoc.enable_update_fields(doc)
+if MISSING_IMAGES:
+    import sys
+    missing=sorted(set(MISSING_IMAGES))
+    sys.exit(f"ERROR: {len(missing)} asset(s) not found under {IMG}:\n  "
+             + "\n  ".join(missing)
+             + "\nThe Learner Guide was NOT saved. Fix the asset path or add the "
+               "files, then rebuild.")
+
 DOCX_OUT=os.path.join(REPO,"courseware",f"LG-{C.SHORT_TITLE}.docx")
 doc.save(DOCX_OUT)
 print("Saved",DOCX_OUT)
