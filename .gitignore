@@ -38,3 +38,13 @@ LMS-LINKS.md
 .playwright-mcp/
 __pycache__/
 *.pyc
+
+# LMS-TMS service key — a credential. Never commit.
+lms_tms_api_key
+.claude/lms_tms_api_key
+*.key
+
+# Learner lab settings — holds a live IoTFlow device token. Never commit.
+# config.example.py IS committed; the filled-in config.py is not.
+labs/config.py
+labs/**/config.py

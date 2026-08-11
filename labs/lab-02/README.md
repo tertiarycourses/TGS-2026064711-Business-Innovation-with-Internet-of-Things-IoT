@@ -15,7 +15,7 @@ Live temperature and humidity telemetry streaming into IoTFlow from terminal and
 
 *Uses: Telemetry REST API · Python client (pip install iotflow) · MQTT broker · ESP32/ESP8266.*
 
-![IoTFlow — Lab 2](../courseware/assets/lab-02-send-reading.png)
+![IoTFlow — Lab 2](../../assets/lab-02-send-reading.png)
 
 ## Why the business cares
 
@@ -26,7 +26,30 @@ Each reading is an operational fact with a timestamp. Once the stream exists, th
 - A free account on IoTFlow (https://iot.tertiaryinfotech.com).
 - A modern browser. IoT hardware (ESP32/ESP8266) is optional — every lab can be completed with cURL or Python from any terminal.
 - Your device token from Lab 1 (`dev_...`).
-- Optional, for the scripted steps: Python 3 with `pip install "iotflow[mqtt]"`.
+- Python 3 for the scripted steps — see Setup below.
+
+## Setup (once for all labs)
+
+```bash
+pip install -r ../requirements.txt   # installs iotflow[mqtt]
+cp ../config.example.py ../config.py  # then paste your device token
+```
+
+`config.py` holds your device token, so you paste it once and every lab script picks it up. It is git-ignored and never committed.
+
+## Scripts in this folder
+
+| Script | What it does |
+|---|---|
+| [`send_telemetry_http.py`](send_telemetry_http.py) | Sends readings to IoTFlow over plain HTTP — the simplest uplink there is. |
+| [`send_telemetry_mqtt.py`](send_telemetry_mqtt.py) | Streams the same readings as send_telemetry_http.py, but over MQTT — a lightweight publish/subscribe protocol built for fleets of devices. |
+
+Run them from inside this folder, e.g.:
+
+```bash
+cd lab-02
+python send_telemetry_http.py
+```
 
 ## Step-by-step
 

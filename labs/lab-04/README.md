@@ -15,7 +15,7 @@ A monitoring dashboard plus an alert-driven n8n workflow with an AI summary and 
 
 *Uses: Display widgets · Alert rules · IoTFlow Automations · n8n Webhook · Email/Telegram · Google Sheets · AI nodes.*
 
-![IoTFlow — Lab 4](../courseware/assets/lab-05-dashboard.png)
+![IoTFlow — Lab 4](../../assets/lab-05-dashboard.png)
 
 ## Why the business cares
 
@@ -26,7 +26,30 @@ This is the slide the board actually sees. A dashboard makes performance visible
 - A free account on IoTFlow (https://iot.tertiaryinfotech.com).
 - A modern browser. IoT hardware (ESP32/ESP8266) is optional — every lab can be completed with cURL or Python from any terminal.
 - Your device token from Lab 1 (`dev_...`).
-- Optional, for the scripted steps: Python 3 with `pip install "iotflow[mqtt]"`.
+- Python 3 for the scripted steps — see Setup below.
+
+## Setup (once for all labs)
+
+```bash
+pip install -r ../requirements.txt   # installs iotflow[mqtt]
+cp ../config.example.py ../config.py  # then paste your device token
+```
+
+`config.py` holds your device token, so you paste it once and every lab script picks it up. It is git-ignored and never committed.
+
+## Scripts in this folder
+
+| Script | What it does |
+|---|---|
+| [`closed_loop.py`](closed_loop.py) | Runs the full IoT business loop — sense, decide, act, verify — on one device in one file. |
+| [`simulate_breach.py`](simulate_breach.py) | Drives a temperature excursion on purpose so you can watch your alert pipeline fire end to end. |
+
+Run them from inside this folder, e.g.:
+
+```bash
+cd lab-04
+python closed_loop.py
+```
 
 ## Step-by-step
 

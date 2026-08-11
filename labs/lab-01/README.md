@@ -15,7 +15,7 @@ A registered IoT device in your own IoTFlow project, with its device token saved
 
 *Uses: IoTFlow projects · Add Device wizard · Device tokens · HTTP & MQTT.*
 
-![IoTFlow — Lab 1](../courseware/assets/lab-01-add-device.png)
+![IoTFlow — Lab 1](../../assets/lab-01-add-device.png)
 
 ## Why the business cares
 
@@ -25,7 +25,29 @@ This is the first step of digitisation: an asset that was previously invisible t
 
 - A free account on IoTFlow (https://iot.tertiaryinfotech.com).
 - A modern browser. IoT hardware (ESP32/ESP8266) is optional — every lab can be completed with cURL or Python from any terminal.
-- Optional, for the scripted steps: Python 3 with `pip install "iotflow[mqtt]"`.
+- Python 3 for the scripted steps — see Setup below.
+
+## Setup (once for all labs)
+
+```bash
+pip install -r ../requirements.txt   # installs iotflow[mqtt]
+cp ../config.example.py ../config.py  # then paste your device token
+```
+
+`config.py` holds your device token, so you paste it once and every lab script picks it up. It is git-ignored and never committed.
+
+## Scripts in this folder
+
+| Script | What it does |
+|---|---|
+| [`verify_device.py`](verify_device.py) | Proves that the device you just registered on the IoTFlow dashboard is real: it authenticates with your device token and sends one "hello" reading. |
+
+Run them from inside this folder, e.g.:
+
+```bash
+cd lab-01
+python verify_device.py
+```
 
 ## Step-by-step
 

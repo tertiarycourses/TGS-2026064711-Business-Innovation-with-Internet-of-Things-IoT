@@ -45,12 +45,28 @@ schedule cannot silently drift out of alignment.
 All four labs run on **IoTFlow** — <https://iot.tertiaryinfotech.com>. Hardware is
 optional: every lab can be completed from a browser and a terminal with cURL or Python.
 
-| Lab | Title | What the learner builds |
-|---|---|---|
-| 1 | [Register Your First IoT Device on IoTFlow](labs/lab-01-register-your-first-iot-device-on-iotflow.md) | A registered device in your own project, with its device token saved |
-| 2 | [Post Business Data to the Cloud (HTTP & MQTT)](labs/lab-02-post-business-data-to-the-cloud-http-mqtt.md) | Live telemetry streaming in from terminal and Python |
-| 3 | [Read Data Back and Remotely Control the Asset](labs/lab-03-read-data-back-and-remotely-control-the-asset.md) | A dashboard switch and slider driving a relay/LED in real time |
-| 4 | [Turn IoT Data into Business Insight](labs/lab-04-turn-iot-data-into-business-insight.md) | A dashboard plus an alert-driven n8n workflow with an AI summary |
+Each lab is its own folder — `README.md` holds the instructions and the `.py` files
+beside it are runnable scripts built on the official
+[`iotflow`](https://pypi.org/project/iotflow/) Python client.
+
+| Lab | Title | What the learner builds | Scripts |
+|---|---|---|---|
+| 1 | [Register Your First IoT Device on IoTFlow](labs/lab-01/README.md) | A registered device in your own project, with its device token saved | `verify_device.py` |
+| 2 | [Post Business Data to the Cloud (HTTP & MQTT)](labs/lab-02/README.md) | Live telemetry streaming in from terminal and Python | `send_telemetry_http.py`, `send_telemetry_mqtt.py` |
+| 3 | [Read Data Back and Remotely Control the Asset](labs/lab-03/README.md) | A dashboard switch and slider driving a relay/LED in real time | `read_state.py`, `control_http.py`, `control_mqtt.py` |
+| 4 | [Turn IoT Data into Business Insight](labs/lab-04/README.md) | A dashboard plus an alert-driven n8n workflow with an AI summary | `simulate_breach.py`, `closed_loop.py` |
+
+Learners set up once, then every script picks up their credentials:
+
+```bash
+cd labs
+pip install -r requirements.txt   # installs iotflow[mqtt]
+cp config.example.py config.py    # paste the device token from Lab 1
+```
+
+`labs/config.py` holds a live device token and is git-ignored, so it is never committed.
+HTTP-mode scripts run on the Python standard library alone; only the MQTT scripts need
+the `[mqtt]` extra.
 
 Each lab is framed around the business decision it enables, not just the wiring — which
 is what ability **A3** ("identify ways in which digitisation can be applied to the
@@ -63,7 +79,14 @@ courseware/                    Built deliverables (one live version only)
   Business Innovation with IoT-v10.0.pptx / .pdf    Slide deck — 100 slides
   LG-Business Innovation with IoT.docx / .pdf / .md Learner Guide (+ Markdown mirror)
   LP-Business Innovation with IoT.docx / .pdf       Lesson Plan
-labs/                          4 IoTFlow labs + index
+labs/                          4 IoTFlow labs — one folder each, + index
+  README.md                    Labs index and one-time setup
+  requirements.txt             iotflow[mqtt] — the only dependency
+  config.example.py            Copy to config.py and paste your device token (git-ignored)
+  lab-01/  README.md + verify_device.py
+  lab-02/  README.md + send_telemetry_http.py, send_telemetry_mqtt.py
+  lab-03/  README.md + read_state.py, control_http.py, control_mqtt.py
+  lab-04/  README.md + simulate_breach.py, closed_loop.py
 assets/                        Diagrams and platform screenshots used by the deck and guide
 .claude/skills/courseware-build/build/
   course_data.py               SINGLE SOURCE OF TRUTH — metadata, outcomes, topics, discussions
@@ -71,9 +94,14 @@ assets/                        Diagrams and platform screenshots used by the dec
   build_slides.py              → the deck
   build_lesson_plan.py         → the Lesson Plan
   build_learner_guide.py       → the Learner Guide (DOCX + Markdown)
-  build_labs.py                → labs/*.md and the labs index
+  build_labs.py                → labs/lab-NN/README.md and the labs index
   build_courseware.sh          Orchestrator: generate → PDF → inject TOC → re-render
 ```
+
+The lab **instructions** are generated from `data_domain3.py`; the lab **Python scripts**
+are hand-written and verified against the real `iotflow` package, so `build_labs.py`
+rewrites each `README.md` and lists whatever scripts it finds beside it without
+overwriting them.
 
 ## Rebuilding the courseware
 

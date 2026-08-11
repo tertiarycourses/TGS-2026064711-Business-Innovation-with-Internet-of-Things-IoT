@@ -1,0 +1,4 @@
+# IoTFlow Python client — the only dependency for every lab in this course.
+# The [mqtt] extra adds paho-mqtt, needed by the MQTT scripts in Labs 2 and 3.
+# HTTP-only scripts run on the standard library alone.
+iotflow[mqtt]>=0.1.0

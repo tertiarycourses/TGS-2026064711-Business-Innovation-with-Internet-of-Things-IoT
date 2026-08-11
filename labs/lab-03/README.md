@@ -15,7 +15,7 @@ A dashboard switch and slider that control a relay/LED on the device in real tim
 
 *Uses: REST API (GET /api/device/state) · MQTT subscribe · Control widgets · Virtual pins · @on_command.*
 
-![IoTFlow — Lab 3](../courseware/assets/lab-04-control-device.png)
+![IoTFlow — Lab 3](../../assets/lab-04-control-device.png)
 
 ## Why the business cares
 
@@ -26,7 +26,31 @@ Monitoring tells you what happened. Control lets the system act without a person
 - A free account on IoTFlow (https://iot.tertiaryinfotech.com).
 - A modern browser. IoT hardware (ESP32/ESP8266) is optional — every lab can be completed with cURL or Python from any terminal.
 - Your device token from Lab 1 (`dev_...`).
-- Optional, for the scripted steps: Python 3 with `pip install "iotflow[mqtt]"`.
+- Python 3 for the scripted steps — see Setup below.
+
+## Setup (once for all labs)
+
+```bash
+pip install -r ../requirements.txt   # installs iotflow[mqtt]
+cp ../config.example.py ../config.py  # then paste your device token
+```
+
+`config.py` holds your device token, so you paste it once and every lab script picks it up. It is git-ignored and never committed.
+
+## Scripts in this folder
+
+| Script | What it does |
+|---|---|
+| [`control_http.py`](control_http.py) | Reacts to the dashboard's Switch and Slider widgets. |
+| [`control_mqtt.py`](control_mqtt.py) | The same @on_command handler as control_http.py, but delivered over MQTT. |
+| [`read_state.py`](read_state.py) | Reads your device's current virtual-pin state back out of IoTFlow with state(). |
+
+Run them from inside this folder, e.g.:
+
+```bash
+cd lab-03
+python control_http.py
+```
 
 ## Step-by-step
 
