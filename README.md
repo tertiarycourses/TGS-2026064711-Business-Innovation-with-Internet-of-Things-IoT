@@ -76,7 +76,7 @@ business") is assessed on. See the [labs index](labs/README.md).
 
 ```
 courseware/                    Built deliverables (one live version only)
-  Business Innovation with IoT-v10.0.pptx / .pdf    Slide deck — 100 slides
+  Business Innovation with IoT-v10.1.pptx / .pdf    Slide deck — 100 slides
   LG-Business Innovation with IoT.docx / .pdf / .md Learner Guide (+ Markdown mirror)
   LP-Business Innovation with IoT.docx / .pdf       Lesson Plan
 labs/                          4 IoTFlow labs — one folder each, + index

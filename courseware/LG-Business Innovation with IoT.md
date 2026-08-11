@@ -1,6 +1,6 @@
 # Business Innovation with Internet-of-Things (IoT) — Learner Guide
 
-**WSQ Course Code:** TGS-2026064711  |  **Conducted by:** Tertiary Infotech Academy Pte Ltd (UEN 201200696W)  |  **Version v10.0 · 8 August 2026**
+**WSQ Course Code:** TGS-2026064711  |  **Conducted by:** Tertiary Infotech Academy Pte Ltd (UEN 201200696W)  |  **Version v10.1 · 11 August 2026**
 
 ## Contents
 
@@ -195,7 +195,7 @@ Goal: Turn a physical asset into a digital one. You sign in to IoTFlow, create a
 
 A registered IoT device in your own IoTFlow project, with its device token saved   (Tools: IoTFlow projects · Add Device wizard · Device tokens · HTTP & MQTT.)
 
-![IoTFlow — Lab 1: Register Your First IoT Device on IoTFlow](courseware/assets/lab-01-add-device.png)
+![IoTFlow — Lab 1: Register Your First IoT Device on IoTFlow](../assets/lab-01-add-device.png)
 
 *IoTFlow — Lab 1: Register Your First IoT Device on IoTFlow*
 
@@ -231,7 +231,7 @@ This is the first step of digitisation: an asset that was previously invisible t
 
 Your new device appears in the project's device list, and its Integrate page shows code snippets pre-filled with your endpoint and device token.
 
-> **Note:** A standalone copy of this lab is in labs/lab-01-*.md so you can repeat it after the course. Your IoTFlow project stays available to you.
+> **Note:** A standalone copy of this lab is in labs/lab-01/README.md, with runnable Python scripts beside it, so you can repeat it after the course. Your IoTFlow project stays available to you.
 
 ---
 
@@ -246,7 +246,7 @@ Goal: Send readings to IoTFlow three different ways — cURL from any terminal, 
 
 Live temperature and humidity telemetry streaming into IoTFlow from terminal and Python   (Tools: Telemetry REST API · Python client (pip install iotflow) · MQTT broker · ESP32/ESP8266.)
 
-![IoTFlow — Lab 2: Post Business Data to the Cloud (HTTP & MQTT)](courseware/assets/lab-02-send-reading.png)
+![IoTFlow — Lab 2: Post Business Data to the Cloud (HTTP & MQTT)](../assets/lab-02-send-reading.png)
 
 *IoTFlow — Lab 2: Post Business Data to the Cloud (HTTP & MQTT)*
 
@@ -314,7 +314,7 @@ while True:
 
 Every value you send appears in the Dashboard's Latest Telemetry within seconds, and the device's telemetry history grows with each reading.
 
-> **Note:** A standalone copy of this lab is in labs/lab-02-*.md so you can repeat it after the course. Your IoTFlow project stays available to you.
+> **Note:** A standalone copy of this lab is in labs/lab-02/README.md, with runnable Python scripts beside it, so you can repeat it after the course. Your IoTFlow project stays available to you.
 
 ---
 
@@ -329,7 +329,7 @@ Goal: Read device state back out of the cloud over the REST API and MQTT, then a
 
 A dashboard switch and slider that control a relay/LED on the device in real time   (Tools: REST API (GET /api/device/state) · MQTT subscribe · Control widgets · Virtual pins · @on_command.)
 
-![IoTFlow — Lab 3: Read Data Back and Remotely Control the Asset](courseware/assets/lab-04-control-device.png)
+![IoTFlow — Lab 3: Read Data Back and Remotely Control the Asset](../assets/lab-04-control-device.png)
 
 *IoTFlow — Lab 3: Read Data Back and Remotely Control the Asset*
 
@@ -393,7 +393,7 @@ iot.loop_forever()
 
 Toggling the dashboard switch changes the relay/LED state within a second, and the slider value arrives in your @on_command handler as you drag it.
 
-> **Note:** A standalone copy of this lab is in labs/lab-03-*.md so you can repeat it after the course. Your IoTFlow project stays available to you.
+> **Note:** A standalone copy of this lab is in labs/lab-03/README.md, with runnable Python scripts beside it, so you can repeat it after the course. Your IoTFlow project stays available to you.
 
 ---
 
@@ -408,7 +408,7 @@ Goal: Build a live dashboard from your readings — number cards, gauges, charts
 
 A monitoring dashboard plus an alert-driven n8n workflow with an AI summary and a downlink command   (Tools: Display widgets · Alert rules · IoTFlow Automations · n8n Webhook · Email/Telegram · Google Sheets · AI nodes.)
 
-![IoTFlow — Lab 4: Turn IoT Data into Business Insight](courseware/assets/lab-05-dashboard.png)
+![IoTFlow — Lab 4: Turn IoT Data into Business Insight](../assets/lab-05-dashboard.png)
 
 *IoTFlow — Lab 4: Turn IoT Data into Business Insight*
 
@@ -444,7 +444,7 @@ This is the slide the board actually sees. A dashboard makes performance visible
 
 Pushing a reading above the threshold fires the n8n workflow: the notification arrives, a row is appended to the sheet, the AI summary is generated, and the device reacts to the command sent back.
 
-> **Note:** A standalone copy of this lab is in labs/lab-04-*.md so you can repeat it after the course. Your IoTFlow project stays available to you.
+> **Note:** A standalone copy of this lab is in labs/lab-04/README.md, with runnable Python scripts beside it, so you can repeat it after the course. Your IoTFlow project stays available to you.
 
 ---
 

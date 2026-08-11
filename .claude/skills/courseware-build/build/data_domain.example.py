@@ -5,8 +5,9 @@ Copy to data_domain1.py, data_domain2.py, … (one file per domain). Each file
 defines DOMAINn = [ dict(...), ... ]. The lab `num` is the GLOBAL, contiguous
 lab number across all domains (1, 2, 3, …); `topic` is the domain number. The
 build engine renders one PPT activity + step slides, one Learner-Guide section,
-and one Lesson-Plan schedule entry per activity, and the labs/lab-NN-*.md files
-carry the full commands. Keep the numbering contiguous so every artifact aligns.
+and one Lesson-Plan schedule entry per activity, and the labs/lab-NN/README.md
+files carry the full commands. Keep the numbering contiguous so every artifact
+aligns.
 """
 
 DOMAIN1 = [

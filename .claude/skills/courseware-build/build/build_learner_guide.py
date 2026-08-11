@@ -33,7 +33,7 @@ def _find_repo(start):
         if os.path.isdir(os.path.join(d,"courseware")) and os.path.isdir(os.path.join(d,"labs")): return d
     return os.path.dirname(os.path.dirname(HERE))
 REPO=_find_repo(HERE); ASSETS=os.path.join(os.path.dirname(HERE),"assets")
-IMG=os.path.join(REPO,"courseware","assets")   # course diagrams & screenshots
+IMG=os.path.join(REPO,"assets")   # course diagrams & screenshots
 
 # ---------------- block DSL (single content stream → MD + DOCX) ----------------
 B=[]
@@ -148,8 +148,9 @@ for t in C.TOPICS:
         steps([(instr,cmd) for instr,cmd in a["steps"]])
         h3("Test it")
         p(a["test"])
-        note(f"A standalone copy of this lab is in labs/lab-{a['num']:02d}-*.md so you can repeat it "
-             f"after the course. Your {C.PLATFORM} project stays available to you.")
+        note(f"A standalone copy of this lab is in labs/lab-{a['num']:02d}/README.md, with runnable "
+             f"Python scripts beside it, so you can repeat it after the course. "
+             f"Your {C.PLATFORM} project stays available to you.")
         rule()
 
 h1("Putting It Together — From Opportunity to Action Plan")
@@ -244,13 +245,17 @@ def render_md():
         elif kind=="note": out+=[f"> **Note:** {rest[0]}",""]
         elif kind=="rule": out+=["---",""]
         elif kind=="image":
-            out+=[f"![{rest[1]}](courseware/assets/{rest[0]})","",f"*{rest[1]}*",""]
+            # Assets live at the repo root; this Markdown is written into
+            # courseware/, so climb one level to reach them.
+            out+=[f"![{rest[1]}](../assets/{rest[0]})","",f"*{rest[1]}*",""]
         elif kind=="dl":
             for term,defn in rest[0]: out.append(f"- **{term}** — {defn}")
             out.append("")
     return "\n".join(out)
 
-MD_OUT=os.path.join(REPO,f"LG-{C.SHORT_TITLE}.md")
+# The Markdown mirror sits beside the DOCX in courseware/ — that is the copy the
+# repo tracks and publishes, so both must land in the same folder.
+MD_OUT=os.path.join(REPO,"courseware",f"LG-{C.SHORT_TITLE}.md")
 with open(MD_OUT,"w") as f: f.write(render_md())
 print("Saved",MD_OUT)
 
@@ -265,12 +270,17 @@ prodoc.add_cover_page(doc,"LEARNER GUIDE",C.TITLE,C.VERSION.lstrip("v"),
                       course_logo=None, course_code=C.COURSE_CODE)
 prodoc.add_version_control(doc,[
  ("9.0","1 January 2026","Previous release — 2-day structure with ThingSpeak, MATLAB and IFTTT practical activities.",C.TRAINER),
- (C.VERSION.lstrip("v"),C.VERSION_DATE,
+ ("10.0","8 August 2026",
   "Major revision. Restructured to the accredited one-day (8-hour) format per Course Proposal "
   "CA-WSQ-2020-007388. All practical activities replaced with four hands-on labs on the IoTFlow "
   "platform (https://iot.tertiaryinfotech.com); ThingSpeak, MATLAB and IFTTT content retired. "
   "Added facilitated-discussion activities for Topics 1, 2, 4 and 5, a Skills Framework mapping "
   "section, a lab troubleshooting section and an IoT glossary.",C.TRAINER),
+ (C.VERSION.lstrip("v"),C.VERSION_DATE,
+  "Each lab is now a self-contained folder (labs/lab-NN/) holding its instructions plus runnable "
+  "Python scripts built on the official iotflow client, so learners can repeat every lab after "
+  "the course. Updated the standalone-copy references in each lab section to the new paths.",
+  C.TRAINER),
 ])
 prodoc.add_toc(doc)
 

@@ -16,6 +16,10 @@
 # Distribution archives (rebuildable — never pushed to GitHub)
 *.zip
 
+# Superseded courseware versions — only the current version is published here.
+# The Drive folder keeps its own archive/ for the history.
+courseware/archive/
+
 # Secrets and credentials
 .env
 .env.*

@@ -20,8 +20,8 @@ All hands-on labs run on IoTFlow — https://iot.tertiaryinfotech.com
 TITLE        = "Business Innovation with Internet-of-Things (IoT)"
 SHORT_TITLE  = "Business Innovation with IoT"          # used in output filenames
 COURSE_CODE  = "TGS-2026064711"
-VERSION      = "v10.0"
-VERSION_DATE = "8 August 2026"
+VERSION      = "v10.1"
+VERSION_DATE = "11 August 2026"
 ORG          = "Tertiary Infotech Academy Pte Ltd"
 UEN          = "UEN: 201200696W"
 TRAINER      = "Dr. Alfred Ang"

@@ -76,11 +76,15 @@ prodoc.add_cover_page(doc,"LESSON PLAN",C.TITLE,C.VERSION.lstrip("v"),
                       course_logo=None, course_code=C.COURSE_CODE)
 prodoc.add_version_control(doc,[
  ("9.0","1 January 2026","Previous release — 2-day structure with ThingSpeak/MATLAB and IFTTT practical activities.",C.TRAINER),
- (C.VERSION.lstrip("v"),C.VERSION_DATE,
+ ("10.0","8 August 2026",
   "Major revision. Restructured to the accredited one-day (8-hour) format per Course Proposal "
   "CA-WSQ-2020-007388. All practical activities replaced with four hands-on labs on the IoTFlow "
   "platform (https://iot.tertiaryinfotech.com); ThingSpeak, MATLAB and IFTTT content retired. "
   "Assessment stated as WA (Q&A) plus Oral Questioning.",C.TRAINER),
+ (C.VERSION.lstrip("v"),C.VERSION_DATE,
+  "Each lab is now a self-contained folder (labs/lab-NN/) holding its instructions plus runnable "
+  "Python scripts built on the official iotflow client. No change to the schedule, timings or "
+  "assessment.",C.TRAINER),
 ])
 prodoc.add_toc(doc)
 
