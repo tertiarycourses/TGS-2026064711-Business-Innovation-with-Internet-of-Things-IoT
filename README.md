@@ -5,7 +5,9 @@
 **Duration:** 1 day · 8 training hours
 **Conducted by:** Tertiary Infotech Academy Pte Ltd (UEN 201200696W)
 
-[**Register for this course →**](https://www.tertiarycourses.com.sg/wsq-business-innovation-with-internet-of-things-iot.html)
+[**Register for this course →**](https://www.tertiarycourses.com.sg/casl-business-innovation-with-internet-of-things-iot.html)
+
+**Funding:** up to 70% course-fee funding for eligible learners and SMEs. Eligibility and terms apply — see the registration page.
 
 Courseware for a one-day WSQ course on identifying, evaluating and implementing business
 innovation opportunities using the Internet of Things. The course is deliberately
